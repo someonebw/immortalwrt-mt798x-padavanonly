@@ -756,6 +756,7 @@ setup_model()
 	*rax3000m* |\
 	h3c,nx30pro |\
 	konka,komi-a31 |\
+	newland,nl-wr8103 |\
 	*nokia,ea0326gmp* |\
 	nradio,wt9103 |\
 	*7981*)

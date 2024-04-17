@@ -44,7 +44,12 @@ h3c,nx30pro)
 	ucidef_set_led_default "red" "RED" "nx30pro:red" "0"
 	;;
 konka,komi-a31)
-        ucidef_set_led_netdev "blue" "BLUE" "blue:status" "eth1" "link"
+    ucidef_set_led_netdev "blue" "BLUE" "blue:status" "eth1" "link"
+	;;
+*newland,nl-wr8103*)
+	ucidef_set_led_default "red" "RED" "red:status" "0"
+	ucidef_set_led_default "green" "GREEN" "green:status" "0"
+	ucidef_set_led_default "blue" "BLUE" "blue:status" "1"
 	;;
 nradio,wt9103)
 	ucidef_set_led_default "power" "POWER" "hc:blue:status" "1"
