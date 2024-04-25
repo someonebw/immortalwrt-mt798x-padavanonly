@@ -27,9 +27,9 @@
  
 +static struct hnat_desc {
 +	u32 entry : 14;
-+	#if defined(CONFIG_MEDIATEK_NETSYS_RX_V2)
++	
 +	u32 fill : 4;
-+	#endif
++	
 +	u32 crsn : 5;
 +	u32 sport : 4;
 +	u32 alg : 1;
@@ -121,9 +121,9 @@
  
 +static struct hnat_desc {
 +	u32 entry : 14;
-+	#if defined(CONFIG_MEDIATEK_NETSYS_RX_V2)
++	
 +	u32 fill : 4;
-+	#endif
++	
 +	u32 crsn : 5;
 +	u32 sport : 4;
 +	u32 alg : 1;
