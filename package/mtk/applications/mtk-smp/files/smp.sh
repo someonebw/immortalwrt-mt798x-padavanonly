@@ -157,6 +157,78 @@ MT7986()
 	fi
 }
 
+MT7988()
+{
+	num_of_wifi=$1
+	DEFAULT_RPS=0
+
+	#Physical IRQ# setting
+	#Ethernet RSS feature enables 4 Rx rings
+	eth_irq_rx0=221
+	eth_irq_rx1=222
+	eth_irq_rx2=223
+	eth_irq_rx3=224
+	eth_irq_tx=229
+	wifi1_irq_pcie0=524288
+	wifi1_irq_pcie1=134742016
+	wifi2_irq_pcie0=
+	wifi2_irq_pcie1=
+
+	if [[ "$WED_ENABLE" -eq "1" ]]; then
+		dbg2 "WED_ENABLE ON irq/iptable setting"
+		#TCP Binding
+		iptables -D FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -j FLOWOFFLOAD --hw
+		iptables -I FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -j FLOWOFFLOAD --hw
+		ip6tables -D FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -j FLOWOFFLOAD --hw
+		ip6tables -I FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -j FLOWOFFLOAD --hw
+		#UDP Binding
+		iptables -D FORWARD -p udp -j FLOWOFFLOAD --hw
+		iptables -I FORWARD -p udp -j FLOWOFFLOAD --hw
+		ip6tables -D FORWARD -p udp -j FLOWOFFLOAD --hw
+		ip6tables -I FORWARD -p udp -j FLOWOFFLOAD --hw
+
+	else
+		dbg2 "WED_ENABLE OFF irq/iptable seting"
+	fi
+
+	for vif in $NET_IF_LIST;
+	do
+		if [[ "$vif" == "wlan"* ]] || [[ "$vif" == "phy"* ]]; then
+			WIFI_IF_LIST="$WIFI_IF_LIST $vif"
+		fi
+	done;
+	dbg2 "$WIFI_IF_LIST = $WIFI_IF_LIST"
+	# Please update the CPU binding in each cases.
+	# CPU#_AFFINITY="add binding irq number here"
+	# CPU#_RPS="add binding interface name here"
+	if [ "$num_of_wifi" = "0" ]; then
+		CPU0_AFFINITY="$eth_irq_rx0 $eth_irq_tx"
+		CPU1_AFFINITY="$eth_irq_rx1"
+		CPU2_AFFINITY="$eth_irq_rx2"
+		CPU3_AFFINITY="$eth_irq_rx3"
+
+		CPU0_RPS="$RPS_IF_LIST"
+		CPU1_RPS="$RPS_IF_LIST"
+		CPU2_RPS="$RPS_IF_LIST"
+		CPU3_RPS="$RPS_IF_LIST"
+	else
+		#we bound all wifi card to cpu0 and bound eth to cpu
+		CPU0_AFFINITY=""
+		CPU1_AFFINITY=""
+		CPU2_AFFINITY="$eth_irq_rx0 $eth_irq_rx1 $eth_irq_tx"
+		CPU3_AFFINITY="$eth_irq_rx2 $eth_irq_rx3"
+
+		CPU0_RPS="$WIFI_IF_LIST"
+		CPU1_RPS="$WIFI_IF_LIST"
+		CPU2_RPS=""
+		CPU3_RPS=""
+	fi
+	dbg2 "CPU0_AFFINITY = $CPU0_AFFINITY"
+	dbg2 "CPU1_AFFINITY = $CPU1_AFFINITY"
+	dbg2 "CPU2_AFFINITY = $CPU2_AFFINITY"
+	dbg2 "CPU3_AFFINITY = $CPU3_AFFINITY"
+}
+
 MT7986_dbdc1()
 {
 	num_of_wifi=$1
@@ -741,6 +813,9 @@ setup_model()
 	tplink,tl-xdr608* |\
 	*7986*)
 		MT7986_whnat $num_of_wifi $usbnet
+		;;
+	*7988*)
+		MT7988 $num_of_wifi 
 		;;
 	*mt3000* |\
 	glinet,x3000-emmc |\

@@ -49,7 +49,7 @@ return view.extend({
 		
 
 
-		s = m.section(form.TableSection, 'device', _('Speed limit and route choose based on IP address(using unique comment less than 32 will enable hardware QOS)'));
+		s = m.section(form.TableSection, 'device', _('Speed limit and route choose based on IP address(using unique comment less than 31 will enable hardware QOS)'));
 		s.addremove = true;
 		s.anonymous = true;
 		s.sortable = true;
