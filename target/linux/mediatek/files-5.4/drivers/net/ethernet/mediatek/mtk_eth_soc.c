@@ -1951,7 +1951,7 @@ static void mtk_tx_set_dma_desc_v2(struct sk_buff *skb, struct net_device *dev, 
 #if defined(CONFIG_NET_MEDIATEK_HNAT) || defined(CONFIG_NET_MEDIATEK_HNAT_MODULE)
 	if (HNAT_SKB_CB2(skb)->magic == 0x78681415) {
 		data &= ~(0xf << TX_DMA_FPORT_SHIFT_V2);
-		data |= 0x4 << TX_DMA_FPORT_SHIFT_V2;
+		data |= 0x3 << TX_DMA_FPORT_SHIFT_V2;
 	}
 
 	trace_printk("[%s] skb_shinfo(skb)->nr_frags=%x HNAT_SKB_CB2(skb)->magic=%x txd4=%x<-----\n",
@@ -2003,7 +2003,7 @@ static void mtk_tx_set_dma_desc_v3(struct sk_buff *skb, struct net_device *dev, 
 #if defined(CONFIG_NET_MEDIATEK_HNAT) || defined(CONFIG_NET_MEDIATEK_HNAT_MODULE)
 	if (HNAT_SKB_CB2(skb)->magic == 0x78681415) {
 		data &= ~(0xf << TX_DMA_FPORT_SHIFT_V2);
-		data |= 0x4 << TX_DMA_FPORT_SHIFT_V2;
+		data |= 0x3 << TX_DMA_FPORT_SHIFT_V2;
 	}
 
 	trace_printk("[%s] skb_shinfo(skb)->nr_frags=%x HNAT_SKB_CB2(skb)->magic=%x txd4=%x<-----\n",
@@ -2406,7 +2406,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
 				mac = (trxd.rxd4 & RX_DMA_SPECIAL_TAG) ?
 				      0 : RX_DMA_GET_SPORT(trxd.rxd4) - 1;
 		}
-
+		if (mac == 4) mac = 0;
 		if (unlikely(mac < 0 || mac >= MTK_MAC_COUNT ||
 			     !eth->netdev[mac]))
 			goto release_desc;
