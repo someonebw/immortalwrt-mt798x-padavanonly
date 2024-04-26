@@ -2394,12 +2394,11 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
 		} else {
 			if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_RX_V2)) {
 				switch (RX_DMA_GET_SPORT_V2(trxd.rxd5)) {
-				case PSE_GDM1_PORT:
-				case PSE_GDM2_PORT:
-					mac = RX_DMA_GET_SPORT_V2(trxd.rxd5) - 1;
-					break;
 				case PSE_GDM3_PORT:
 					mac = MTK_GMAC3_ID;
+					break;
+				default:
+					mac = RX_DMA_GET_SPORT_V2(trxd.rxd5) - 1;
 					break;
 				}
 			} else
