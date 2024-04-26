@@ -159,7 +159,7 @@ MT7986()
 
 MT7988()
 {
-	num_of_wifi=$1
+	num_of_wifi=0
 	DEFAULT_RPS=0
 
 	#Physical IRQ# setting
@@ -174,30 +174,7 @@ MT7988()
 	wifi2_irq_pcie0=
 	wifi2_irq_pcie1=
 
-	if [[ "$WED_ENABLE" -eq "1" ]]; then
-		dbg2 "WED_ENABLE ON irq/iptable setting"
-		#TCP Binding
-		iptables -D FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -j FLOWOFFLOAD --hw
-		iptables -I FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -j FLOWOFFLOAD --hw
-		ip6tables -D FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -j FLOWOFFLOAD --hw
-		ip6tables -I FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -j FLOWOFFLOAD --hw
-		#UDP Binding
-		iptables -D FORWARD -p udp -j FLOWOFFLOAD --hw
-		iptables -I FORWARD -p udp -j FLOWOFFLOAD --hw
-		ip6tables -D FORWARD -p udp -j FLOWOFFLOAD --hw
-		ip6tables -I FORWARD -p udp -j FLOWOFFLOAD --hw
-
-	else
-		dbg2 "WED_ENABLE OFF irq/iptable seting"
-	fi
-
-	for vif in $NET_IF_LIST;
-	do
-		if [[ "$vif" == "wlan"* ]] || [[ "$vif" == "phy"* ]]; then
-			WIFI_IF_LIST="$WIFI_IF_LIST $vif"
-		fi
-	done;
-	dbg2 "$WIFI_IF_LIST = $WIFI_IF_LIST"
+	
 	# Please update the CPU binding in each cases.
 	# CPU#_AFFINITY="add binding irq number here"
 	# CPU#_RPS="add binding interface name here"
@@ -207,10 +184,10 @@ MT7988()
 		CPU2_AFFINITY="$eth_irq_rx2"
 		CPU3_AFFINITY="$eth_irq_rx3"
 
-		CPU0_RPS="$RPS_IF_LIST"
-		CPU1_RPS="$RPS_IF_LIST"
-		CPU2_RPS="$RPS_IF_LIST"
-		CPU3_RPS="$RPS_IF_LIST"
+		CPU0_RPS=""
+		CPU1_RPS="$ethif1 $ethif2 $ethif3"
+		CPU2_RPS="$ethif1 $ethif2 $ethif3"
+		CPU3_RPS="$ethif1 $ethif2 $ethif3"
 	else
 		#we bound all wifi card to cpu0 and bound eth to cpu
 		CPU0_AFFINITY=""
@@ -640,6 +617,7 @@ get_eth_if_name()
 {
 	ethif1="eth0"
 	ethif2="eth1"
+	ethif3="eth2"
 	dbg2 "# Ethernet interface list"
 	dbg2 "\$ethif1=$ethif1\n\$ethif2=$ethif2"
 	RPS_IF_LIST="$RPS_IF_LIST $ethif1 $ethif2"
@@ -815,7 +793,7 @@ setup_model()
 		MT7986_whnat $num_of_wifi $usbnet
 		;;
 	*7988*)
-		MT7988 $num_of_wifi 
+		MT7988 0
 		;;
 	*mt3000* |\
 	glinet,x3000-emmc |\
@@ -837,20 +815,7 @@ setup_model()
 		MT7981_whnat $num_of_wifi $usbnet
 		;;
 	*)
-		if [ "$NUM_OF_CPU" = "4" ]; then
-			dbg "setup_model:MT7623 wifi#=$num_of_wifi"
-			MT7623 $num_of_wifi
-		elif [ "$NUM_OF_CPU" = "2" ]; then
-			if [ "$mt_whnat_en" = "1" ];then
-				MT7622_whnat $num_of_wifi
-			else
-				if [ "$wifi1_dbdc_idx" = "1" ]; then
-					MT7622_dbdc1 $num_of_wifi
-				else
-					MT7622 $num_of_wifi
-				fi
-			fi
-		fi
+		MT7988 0
 		;;
 	esac
 }
