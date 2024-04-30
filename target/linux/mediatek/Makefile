@@ -16,6 +16,6 @@ DEFAULT_PACKAGES += \
 	kmod-leds-gpio kmod-gpio-button-hotplug \
 	autocore-arm luci-app-cpufreq luci-app-eqos-mtk \
 	luci-app-turboacc-mtk luci-app-upnp mii_mgr mtkhqos_util luci-app-wrtbwmon \
-	mtk-smp mii_mgr switch regs luci-app-usbmodem swconfig luci-app-cpufreq
+	mtk-smp mii_mgr switch regs luci-app-usbmodem swconfig luci-app-cpufreq kmod-sfp
 
 $(eval $(call BuildTarget))
